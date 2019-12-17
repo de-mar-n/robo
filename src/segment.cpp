@@ -13,14 +13,9 @@
 using namespace std;
 using namespace cv;
 
-#define GO_FORWARD      48
-#define GO_LEFT         49
-#define GO_RIGHT        50
-#define STOP            51
-
-// 354 pixel = 3cm
-#define MARGE             200
-
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 /*vector<Point> find_nearest_plot(vector<vector<Point>> contours)
 {
@@ -70,12 +65,49 @@ vector<Point> get_points(vector<vector<Point>> contours)
 }
 
 
-void draw_full_body(Mat img, vector<Point> pointsRED, vector<Point> pointsYELLOW)
+float innerAngle(float px1, float py1, float px2, float py2, float cx1, float cy1)
 {
 
+  float dist1 = sqrt(  (px1-cx1)*(px1-cx1) + (py1-cy1)*(py1-cy1) );
+  float dist2 = sqrt(  (px2-cx1)*(px2-cx1) + (py2-cy1)*(py2-cy1) );
+
+  float Ax, Ay;
+  float Bx, By;
+  float Cx, Cy;
+
+  //find closest point to C
+  //printf("dist = %lf %lf\n", dist1, dist2);
+
+  Cx = cx1;
+  Cy = cy1;
+  if(dist1 < dist2)
+  {  
+    Bx = px1;
+    By = py1;  
+    Ax = px2;
+    Ay = py2;
+  }
+  else
+  {
+    Bx = px2;
+    By = py2;
+    Ax = px1;
+    Ay = py1;
+  }
+
+
+  float Q1 = Cx - Ax;
+  float Q2 = Cy - Ay;
+  float P1 = Bx - Ax;
+  float P2 = By - Ay;  
+
+
+  float A = acos( (P1*Q1 + P2*Q2) / ( sqrt(P1*P1+P2*P2) * sqrt(Q1*Q1+Q2*Q2) ) );
+
+  A = A*180/M_PI;
+
+  return A;
 }
-
-
 
 int display_skeletton(vector<vector<Point>> contoursRED, vector<vector<Point>> contoursYELLOW, Mat img)
 {
@@ -110,7 +142,6 @@ int display_skeletton(vector<vector<Point>> contoursRED, vector<vector<Point>> c
       // Draw left leg
       line(img, footRED, kneeRED, Scalar(255, 0, 0), 5);
       line(img, kneeRED, hipRED, Scalar(255, 0, 0), 5);
-
       // Draw right leg
       line(img, footYELLOW, kneeYELLOW, Scalar(255, 0, 0), 5);
       line(img, kneeRED, hipYELLOW, Scalar(255, 0, 0), 5);
@@ -120,6 +151,8 @@ int display_skeletton(vector<vector<Point>> contoursRED, vector<vector<Point>> c
       line(img, shoulderRED, shoulderYELLOW, Scalar(255, 0, 0), 5);
       // Draw spine
       line(img, head, middle_hips, Scalar(255, 0, 0), 5);
+
+      cout << "ANGLE : " << innerAngle(footRED.x, footRED.y, kneeRED.x, kneeRED.y, hipRED.x, hipRED.y) << endl;
 
 
       //auto frame_middle = img.rows / 2;
