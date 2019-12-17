@@ -22,7 +22,7 @@ using namespace cv;
 #define MARGE             200
 
 
-vector<Point> find_nearest_plot(vector<vector<Point>> contours)
+/*vector<Point> find_nearest_plot(vector<vector<Point>> contours)
 {
   vector<Moments> mu(contours.size() );
   for( int i = 0; i < contours.size(); i++ )
@@ -35,63 +35,122 @@ vector<Point> find_nearest_plot(vector<vector<Point>> contours)
       max = contours[i];
   }
   return max;
+}*/
+
+
+void print(vector<Point> input)
+{
+  for (int i = 0; i < input.size(); ++i)
+      cout << input.at(i) << ' ';
+  cout << '\n' << endl;
 }
 
-void print_directive(int directive)
+bool compare_point(const Point& a, const Point& b)
 {
-  if (directive == GO_LEFT)
-    cout << "<<<<<<<<<   LEFT" << endl;
-  else if (directive == GO_RIGHT)
-    cout << "                 >>>>>>>>>   RIGHT" << endl;
-  else if (directive == GO_FORWARD)
-    cout << "CONTINUE" << endl;
-  else
-    cout << "STOP" << endl;
+  return a.y < b.y;
 }
 
-/**
-  Return :
-        -1 when the car must go forward
-        0 when the car must go left
-        1 when the car must go right
-        2 when the car must stop
-**/
-int compute_distance(vector<vector<Point>> contoursRED, vector<vector<Point>> contoursYELLOW, Mat img)
+// Get center of each contour
+vector<Point> get_points(vector<vector<Point>> contours)
 {
-    // 1 RED - 1 YELLOW
-    if (!contoursRED.empty() && !contoursYELLOW.empty())
+  vector<Point> result;
+  for (int i = 0; i < contours.size(); ++i)
+  {
+    Point p;
+    for (int x = 0; x < contours[i].size(); ++x)
     {
-      vector<Point> nearestRED = find_nearest_plot(contoursRED);
-      vector<Point> nearestYELLOW = find_nearest_plot(contoursYELLOW);
-      // Draw a line between the plots
-      line(img, nearestRED[0], nearestYELLOW[0], Scalar(255, 0, 0), 5);
-
-      // Determine RIGHT or LEFT
-      auto line_middle = (nearestRED[0].x + nearestYELLOW[0].x) / 2; // Middle of the line between the 2 nearest plot
-      //line_middle.y = (nearestRED[0].y + nearestYELLOW[0].y) / 2;
-      auto frame_middle = img.rows / 2;
-
-      if (line_middle > frame_middle + MARGE)
-        return GO_RIGHT;
-      else if (line_middle < frame_middle - MARGE)
-        return GO_LEFT;
-      else
-        return GO_FORWARD;
+      p.x += contours[i][x].x;
+      p.y += contours[i][x].y;
     }
-    // Only RED
-    else if (!contoursRED.empty() && contoursYELLOW.empty())
+    p.x /= contours[i].size();
+    p.y /= contours[i].size();
+    result.push_back(p);
+  }
+  return result;
+}
+
+
+void draw_full_body(Mat img, vector<Point> pointsRED, vector<Point> pointsYELLOW)
+{
+
+}
+
+
+
+int display_skeletton(vector<vector<Point>> contoursRED, vector<vector<Point>> contoursYELLOW, Mat img)
+{
+    vector<Point> pointsRED = get_points(contoursRED);
+    vector<Point> pointsYELLOW = get_points(contoursYELLOW);
+
+    sort(pointsRED.begin(), pointsRED.end(), compare_point);
+    sort(pointsYELLOW.begin(), pointsYELLOW.end(), compare_point);
+
+
+    //  RED - YELLOW
+    if (pointsRED.size() >= 5 && pointsYELLOW.size() >= 5)
     {
-      return GO_RIGHT;
+      // Find feet
+      Point footRED = pointsRED.at(0);
+      Point footYELLOW = pointsYELLOW.at(0);
+      // Find knees
+      Point kneeRED = pointsRED.at(1);
+      Point kneeYELLOW = pointsYELLOW.at(1);
+      // Find hips
+      Point hipRED = pointsRED.at(2);
+      Point hipYELLOW = pointsYELLOW.at(2);
+      // Find middle of the hips
+      Point middle_hips;
+      middle_hips.x = (hipRED.x + hipYELLOW.x) / 2;
+      // Find shoulders
+      Point shoulderRED = pointsRED.at(3);
+      Point shoulderYELLOW = pointsYELLOW.at(3);
+      // Find head
+      Point head = pointsRED.at(4);
+
+      // Draw left leg
+      line(img, footRED, kneeRED, Scalar(255, 0, 0), 5);
+      line(img, kneeRED, hipRED, Scalar(255, 0, 0), 5);
+
+      // Draw right leg
+      line(img, footYELLOW, kneeYELLOW, Scalar(255, 0, 0), 5);
+      line(img, kneeRED, hipYELLOW, Scalar(255, 0, 0), 5);
+      // Draw hips
+      line(img, hipRED, hipYELLOW, Scalar(255, 0, 0), 5);
+      // Draw shoulders
+      line(img, shoulderRED, shoulderYELLOW, Scalar(255, 0, 0), 5);
+      // Draw spine
+      line(img, head, middle_hips, Scalar(255, 0, 0), 5);
+
+
+      //auto frame_middle = img.rows / 2;
+
     }
-    // Only YELLOW
-    else if (contoursRED.empty() && !contoursYELLOW.empty())
+    // Only RED - Profil gauche
+    else if (pointsRED.size() >= 5 && pointsYELLOW.empty())
     {
+        // Relies all point
+        line(img, footRED, kneeRED, Scalar(255, 0, 0), 5);
+        line(img, kneeRED, hipRED, Scalar(255, 0, 0), 5);
+        line(img, hipRED, shoulderRED, Scalar(255, 0, 0), 5);
+        line(img, shoulderRED, head, Scalar(255, 0, 0), 5);
+    }
+    // Only YELLOW - Profil droit
+    else if (pointsRED.empty() && pointsYELLOW.size() >= 5)
+    {
+        // Relies all points
+	    line(img, footYELLOW, kneeYELLOW, Scalar(255, 0, 0), 5);
+        line(img, kneeYELLOW, hipYELLOW, Scalar(255, 0, 0), 5);
+        line(img, hipYELLOW, shoulderYELLOW, Scalar(255, 0, 0), 5);
+        line(img, shoulderYELLOW, head, Scalar(255, 0, 0), 5);
+
       //arrowedLine(img, nearestRED[0], nearestYELLOW[0], Scalar(255, 0, 0),5);
-      return GO_LEFT;
     }
     // 0 RED - 0 YELLOW
     else
-      return STOP;
+      cout << "No data" << endl;*/
+
+    return 1;
+
 }
 
 
@@ -174,8 +233,8 @@ int find_plots(char *inputVideo)
   // Merge res2 (for red plot) and res3 (for yellow plot)
   addWeighted(res2,1,res3,1,0,final_output);
   // Compute distance between 2 nearest plots from 2 diffrent colors
-  result = compute_distance(contoursRED, contoursYELLOW, final_output);
-  print_directive(result);
+  result = display_skeletton(contoursRED, contoursYELLOW, final_output);
+  //print_directive(result);
 // ------------------------------
 
     imshow("Result", final_output);
