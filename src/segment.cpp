@@ -125,7 +125,7 @@ int display_skeletton(vector<vector<Point>> contoursRED, vector<vector<Point>> c
       //auto frame_middle = img.rows / 2;
 
     }
-    // Only RED - Profil gauche
+    /*// Only RED - Profil gauche
     else if (pointsRED.size() >= 5 && pointsYELLOW.empty())
     {
         // Relies all point
@@ -144,10 +144,10 @@ int display_skeletton(vector<vector<Point>> contoursRED, vector<vector<Point>> c
         line(img, shoulderYELLOW, head, Scalar(255, 0, 0), 5);
 
       //arrowedLine(img, nearestRED[0], nearestYELLOW[0], Scalar(255, 0, 0),5);
-    }
+    }*/
     // 0 RED - 0 YELLOW
     else
-      cout << "No data" << endl;*/
+      cout << "No data" << endl;
 
     return 1;
 
