@@ -3,6 +3,7 @@
 ## Liens utiles
 
 - [Slides de présentation](https://docs.google.com/presentation/d/1Tow0rDgnflSF5sBF0YBuaU8JcT2_Pw3kKCVM8f_WTIc/edit?usp=sharing)
+- [Vidéos de posture (by Joël)](https://drive.google.com/drive/folders/1hU93toK5wEEEE2IZbQ_nkbtZjfm36gTe)
 
 ## À faire
 
