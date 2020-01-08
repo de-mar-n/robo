@@ -13,7 +13,7 @@
 using namespace std;
 using namespace cv;
 
-#define CONTOUR_AREA_MIN 500
+#define CONTOUR_AREA_MIN  400
 
 /*vector<Point> find_nearest_plot(vector<vector<Point>> contours)
 {
@@ -38,7 +38,6 @@ vector<vector<Point>> delete_noise(vector<vector<Point>> contours)
 
   for (int i = 1; i < contours.size(); ++i)
   {
-    //cout << "===> CONTOUR AREA : " << contourArea(contours[i]) << endl;
     if (contourArea(contours[i]) < CONTOUR_AREA_MIN)
       contours.erase(contours.begin() + i);
   }
@@ -81,6 +80,7 @@ vector<Point> get_points(vector<vector<Point>> contours)
 
 int display_skeletton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat img)
 {
+  cout << "===> nb point : " << pointsRED.size() << endl;
     //  RED - YELLOW
     if (pointsRED.size() >= 5 && pointsYELLOW.size() >= 5)
     {
@@ -281,6 +281,7 @@ int find_plots(char *inputVideo)
 
   // Merge res2 (for red plot) and res3 (for yellow plot)
   addWeighted(res2,1,res3,1,0,final_output);
+
   // Compute distance between 2 nearest plots from 2 diffrent colors
   result = display_skeletton(pointsRED, pointsYELLOW, final_output);
   //print_directive(result);

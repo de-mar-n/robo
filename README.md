@@ -8,3 +8,10 @@
 ## À faire
 
 Mettre des points de répère (e.g., autocollants rouges) sur la cheville, le genou, la hanche et le buste (éventuellement les bras) sur une personne, et la filmer pour avoir une image de repère.
+
+## Lancer le programme
+
+Commandes a suivre :
+
+cd src
+./launch
