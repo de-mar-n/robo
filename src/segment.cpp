@@ -13,7 +13,7 @@
 using namespace std;
 using namespace cv;
 
-#define CONTOUR_AREA_MIN  400
+#define CONTOUR_AREA_MIN  10000
 
 /*vector<Point> find_nearest_plot(vector<vector<Point>> contours)
 {
@@ -38,6 +38,7 @@ vector<vector<Point>> delete_noise(vector<vector<Point>> contours)
 
   for (int i = 1; i < contours.size(); ++i)
   {
+    cout << "=> AREA: " << contourArea(contours[i])<< endl;
     if (contourArea(contours[i]) < CONTOUR_AREA_MIN)
       contours.erase(contours.begin() + i);
   }
@@ -80,7 +81,7 @@ vector<Point> get_points(vector<vector<Point>> contours)
 
 int display_skeletton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat img)
 {
-  cout << "===> nb point : " << pointsRED.size() << endl;
+  //cout << "===> nb point : " << pointsRED.size() << endl;
     //  RED - YELLOW
     if (pointsRED.size() >= 5 && pointsYELLOW.size() >= 5)
     {
@@ -270,9 +271,9 @@ int find_plots(char *inputVideo)
   findContours(canny_output, contoursYELLOW, hierarchy,  CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 
   // Enleve le bruit
-  delete_noise(contoursRED);
-  delete_noise(contoursYELLOW);
-
+  contoursRED = delete_noise(contoursRED);
+  contoursYELLOW = delete_noise(contoursYELLOW);
+  //cout << "NB 2 : " << contoursRED.size() << endl;
   // Sort
   vector<Point> pointsRED = get_points(contoursRED);
   vector<Point> pointsYELLOW = get_points(contoursYELLOW);
