@@ -4,18 +4,16 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/opencv.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
-#include <iostream>
 #include <stdio.h>
 #include <experimental/optional>
 #include <stdlib.h>
 
+#include "math_fct.h"
 
 using namespace std;
 using namespace cv;
 
-#ifndef M_PI
-    #define M_PI 3.14159265358979323846
-#endif
+#define CONTOUR_AREA_MIN 500
 
 /*vector<Point> find_nearest_plot(vector<vector<Point>> contours)
 {
@@ -32,6 +30,20 @@ using namespace cv;
   return max;
 }*/
 
+vector<vector<Point>> delete_noise(vector<vector<Point>> contours)
+{
+  vector<Moments> mu(contours.size());
+  for( int i = 0; i < contours.size(); i++ )
+     { mu[i] = moments( contours[i], false ); }
+
+  for (int i = 1; i < contours.size(); ++i)
+  {
+    //cout << "===> CONTOUR AREA : " << contourArea(contours[i]) << endl;
+    if (contourArea(contours[i]) < CONTOUR_AREA_MIN)
+      contours.erase(contours.begin() + i);
+  }
+  return contours;
+}
 
 void print(vector<Point> input)
 {
@@ -65,59 +77,10 @@ vector<Point> get_points(vector<vector<Point>> contours)
 }
 
 
-float innerAngle(float px1, float py1, float px2, float py2, float cx1, float cy1)
+
+
+int display_skeletton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat img)
 {
-
-  float dist1 = sqrt(  (px1-cx1)*(px1-cx1) + (py1-cy1)*(py1-cy1) );
-  float dist2 = sqrt(  (px2-cx1)*(px2-cx1) + (py2-cy1)*(py2-cy1) );
-
-  float Ax, Ay;
-  float Bx, By;
-  float Cx, Cy;
-
-  //find closest point to C
-  //printf("dist = %lf %lf\n", dist1, dist2);
-
-  Cx = cx1;
-  Cy = cy1;
-  if(dist1 < dist2)
-  {  
-    Bx = px1;
-    By = py1;  
-    Ax = px2;
-    Ay = py2;
-  }
-  else
-  {
-    Bx = px2;
-    By = py2;
-    Ax = px1;
-    Ay = py1;
-  }
-
-
-  float Q1 = Cx - Ax;
-  float Q2 = Cy - Ay;
-  float P1 = Bx - Ax;
-  float P2 = By - Ay;  
-
-
-  float A = acos( (P1*Q1 + P2*Q2) / ( sqrt(P1*P1+P2*P2) * sqrt(Q1*Q1+Q2*Q2) ) );
-
-  A = A*180/M_PI;
-
-  return A;
-}
-
-int display_skeletton(vector<vector<Point>> contoursRED, vector<vector<Point>> contoursYELLOW, Mat img)
-{
-    vector<Point> pointsRED = get_points(contoursRED);
-    vector<Point> pointsYELLOW = get_points(contoursYELLOW);
-
-    sort(pointsRED.begin(), pointsRED.end(), compare_point);
-    sort(pointsYELLOW.begin(), pointsYELLOW.end(), compare_point);
-
-
     //  RED - YELLOW
     if (pointsRED.size() >= 5 && pointsYELLOW.size() >= 5)
     {
@@ -158,23 +121,67 @@ int display_skeletton(vector<vector<Point>> contoursRED, vector<vector<Point>> c
       //auto frame_middle = img.rows / 2;
 
     }
-    /*// Only RED - Profil gauche
-    else if (pointsRED.size() >= 5 && pointsYELLOW.empty())
+    else if (pointsRED.size() >= 4 && pointsYELLOW.size() >= 4)
     {
-        // Relies all point
-        line(img, footRED, kneeRED, Scalar(255, 0, 0), 5);
-        line(img, kneeRED, hipRED, Scalar(255, 0, 0), 5);
-        line(img, hipRED, shoulderRED, Scalar(255, 0, 0), 5);
-        line(img, shoulderRED, head, Scalar(255, 0, 0), 5);
+      // Find feet
+      Point footRED = pointsRED.at(0);
+      Point footYELLOW = pointsYELLOW.at(0);
+      // Find knees
+      Point kneeRED = pointsRED.at(1);
+      Point kneeYELLOW = pointsYELLOW.at(1);
+      // Find hips
+      Point hipRED = pointsRED.at(2);
+      Point hipYELLOW = pointsYELLOW.at(2);
+      // Find middle of the hips
+      Point middle_hips;
+      middle_hips.x = (hipRED.x + hipYELLOW.x) / 2;
+      // Find shoulders
+      Point shoulderRED = pointsRED.at(3);
+      Point shoulderYELLOW = pointsYELLOW.at(3);
+      // Find head
+      Point head = (shoulderRED + shoulderYELLOW) / 2;
+
+      // Draw left leg
+      line(img, footRED, kneeRED, Scalar(255, 0, 0), 5);
+      line(img, kneeRED, hipRED, Scalar(255, 0, 0), 5);
+      // Draw right leg
+      line(img, footYELLOW, kneeYELLOW, Scalar(255, 0, 0), 5);
+      line(img, kneeRED, hipYELLOW, Scalar(255, 0, 0), 5);
+      // Draw hips
+      line(img, hipRED, hipYELLOW, Scalar(255, 0, 0), 5);
+      // Draw shoulders
+      line(img, shoulderRED, shoulderYELLOW, Scalar(255, 0, 0), 5);
+      // Draw spine
+      line(img, head, middle_hips, Scalar(255, 0, 0), 5);
+
+      cout << "ANGLE : " << innerAngle(footRED.x, footRED.y, kneeRED.x, kneeRED.y, hipRED.x, hipRED.y) << endl;
+
+    }
+    // Only RED - Profil gauche
+    else if (pointsRED.size() >= 4 && pointsYELLOW.empty())
+    {
+      // Find feet
+      Point footRED = pointsRED.at(0);
+      // Find knees
+      Point kneeRED = pointsRED.at(1);
+      // Find hips
+      Point hipRED = pointsRED.at(2);
+      // Find shoulders
+      Point shoulderRED = pointsRED.at(3);
+      // Relies all point
+      line(img, footRED, kneeRED, Scalar(255, 0, 0), 5);
+      line(img, kneeRED, hipRED, Scalar(255, 0, 0), 5);
+      line(img, hipRED, shoulderRED, Scalar(255, 0, 0), 5);
+        //line(img, shoulderRED, head, Scalar(255, 0, 0), 5);
     }
     // Only YELLOW - Profil droit
-    else if (pointsRED.empty() && pointsYELLOW.size() >= 5)
+    /*else if (pointsRED.empty() && pointsYELLOW.size() >= 5)
     {
         // Relies all points
 	    line(img, footYELLOW, kneeYELLOW, Scalar(255, 0, 0), 5);
-        line(img, kneeYELLOW, hipYELLOW, Scalar(255, 0, 0), 5);
-        line(img, hipYELLOW, shoulderYELLOW, Scalar(255, 0, 0), 5);
-        line(img, shoulderYELLOW, head, Scalar(255, 0, 0), 5);
+      line(img, kneeYELLOW, hipYELLOW, Scalar(255, 0, 0), 5);
+      line(img, hipYELLOW, shoulderYELLOW, Scalar(255, 0, 0), 5);
+      //line(img, shoulderYELLOW, head, Scalar(255, 0, 0), 5);
 
       //arrowedLine(img, nearestRED[0], nearestYELLOW[0], Scalar(255, 0, 0),5);
     }*/
@@ -232,7 +239,6 @@ int find_plots(char *inputVideo)
   morphologyEx(mask3,mask3,cv::MORPH_OPEN,kernel);
   morphologyEx(mask3,mask3,cv::MORPH_DILATE,kernel);
 
-
   Mat res1, res2, res3, final_output;
   /*// creating an inverted mask to segment out the cloth from the frame
   bitwise_not(mask1,mask2); // for the res1 only
@@ -263,10 +269,20 @@ int find_plots(char *inputVideo)
   Canny( res3, canny_output, thresh, thresh*2, 3 );
   findContours(canny_output, contoursYELLOW, hierarchy,  CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 
+  // Enleve le bruit
+  delete_noise(contoursRED);
+  delete_noise(contoursYELLOW);
+
+  // Sort
+  vector<Point> pointsRED = get_points(contoursRED);
+  vector<Point> pointsYELLOW = get_points(contoursYELLOW);
+  sort(pointsRED.begin(), pointsRED.end(), compare_point);
+  sort(pointsYELLOW.begin(), pointsYELLOW.end(), compare_point);
+
   // Merge res2 (for red plot) and res3 (for yellow plot)
   addWeighted(res2,1,res3,1,0,final_output);
   // Compute distance between 2 nearest plots from 2 diffrent colors
-  result = display_skeletton(contoursRED, contoursYELLOW, final_output);
+  result = display_skeletton(pointsRED, pointsYELLOW, final_output);
   //print_directive(result);
 // ------------------------------
 
