@@ -1,34 +1,11 @@
-#include <iostream>
-#include <opencv2/core/core.hpp>
-#include <opencv2/opencv.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/opencv.hpp>
-#include "opencv2/imgproc/imgproc.hpp"
-#include <stdio.h>
-#include <experimental/optional>
-#include <stdlib.h>
 
-#include "math_fct.h"
-
-using namespace std;
-using namespace cv;
+#include "segment.h"
 
 #define CONTOUR_AREA_MIN  90000
 
-/*vector<Point> find_nearest_plot(vector<vector<Point>> contours)
-{
-  vector<Moments> mu(contours.size() );
-  for( int i = 0; i < contours.size(); i++ )
-     { mu[i] = moments( contours[i], false ); }
-
-  auto max = contours[0];
-  for (int i = 1; i < contours.size(); ++i)
-  {
-    if (contourArea(max) < contourArea(contours[i]))
-      max = contours[i];
-  }
-  return max;
-}*/
+#define DRAW_YELLOW_ONLY    1
+#define DRAW_RED_ONLY       2
+#define DRAW_YELLOW_AND_RED  3
 
 vector<vector<Point>> delete_noise(vector<vector<Point>> contours)
 {
@@ -38,7 +15,7 @@ vector<vector<Point>> delete_noise(vector<vector<Point>> contours)
 
   for (int i = 1; i < contours.size(); ++i)
   {
-    cout << "=> AREA: " << contourArea(contours[i])<< endl;
+    //cout << "=> AREA: " << contourArea(contours[i])<< endl;
     if (contourArea(contours[i]) < CONTOUR_AREA_MIN)
       contours.erase(contours.begin() + i);
   }
@@ -76,11 +53,64 @@ vector<Point> get_points(vector<vector<Point>> contours)
   return result;
 }
 
-void computeAngles()
+void computeAngles(int video_type)
 {
-  
+  if (video_type == DRAW_YELLOW_ONLY)
+  {
+    cout << "ANGLE GENOU: " << innerAngle(footYELLOW.x, footYELLOW.y, kneeYELLOW.x, kneeYELLOW.y, hipYELLOW.x, hipYELLOW.y) << endl;
+    cout << "ANGLE HANCHE: " << innerAngle(kneeYELLOW.x, kneeYELLOW.y, hipYELLOW.x, hipYELLOW.y, shoulderYELLOW.x, shoulderYELLOW.y) << endl;
+
+  }
+  else if (video_type == DRAW_RED_ONLY)
+  {
+    cout << "ANGLE GENOU: " << innerAngle(footRED.x, footRED.y, kneeRED.x, kneeRED.y, hipRED.x, hipRED.y) << endl;
+    cout << "ANGLE HANCHE: " << innerAngle(kneeRED.x, kneeRED.y, hipRED.x, hipRED.y, shoulderRED.x, shoulderRED.y) << endl;
+  }
+  else if (video_type == DRAW_YELLOW_AND_RED)
+  {
+    cout << "ANGLE GENOU GAUCHE: " << innerAngle(footYELLOW.x, footYELLOW.y, kneeYELLOW.x, kneeYELLOW.y, hipYELLOW.x, hipYELLOW.y) << endl;
+    cout << "ANGLE HANCHE GAUCHE: " << innerAngle(kneeYELLOW.x, kneeYELLOW.y, hipYELLOW.x, hipYELLOW.y, shoulderYELLOW.x, shoulderYELLOW.y) << endl;
+    cout << "ANGLE GENOU DROIT: " << innerAngle(footRED.x, footRED.y, kneeRED.x, kneeRED.y, hipRED.x, hipRED.y) << endl;
+    cout << "ANGLE HANCHE DROITE: " << innerAngle(kneeRED.x, kneeRED.y, hipRED.x, hipRED.y, shoulderRED.x, shoulderRED.y) << endl;
+  }
+  else
+    cout << "ERROR: can't compute angles, no data found" << endl;
 }
 
+void draw_lines(Mat img, int video_type)
+{
+  if (video_type == DRAW_YELLOW_ONLY)
+  {
+    line(img, footYELLOW, kneeYELLOW, Scalar(255, 0, 0), 5);
+    line(img, kneeYELLOW, hipYELLOW, Scalar(255, 0, 0), 5);
+    line(img, hipYELLOW, shoulderYELLOW, Scalar(255, 0, 0), 5);
+    line(img, shoulderYELLOW, head, Scalar(255, 0, 0), 5);
+  }
+  else if (video_type == DRAW_RED_ONLY)
+  {
+    line(img, footRED, kneeRED, Scalar(255, 0, 0), 5);
+    line(img, kneeRED, hipRED, Scalar(255, 0, 0), 5);
+    line(img, hipRED, shoulderRED, Scalar(255, 0, 0), 5);
+    line(img, shoulderRED, head, Scalar(255, 0, 0), 5);
+  }
+  else if (video_type == DRAW_YELLOW_AND_RED)
+  {
+    // Draw left leg
+    line(img, footRED, kneeRED, Scalar(255, 0, 0), 5);
+    line(img, kneeRED, hipRED, Scalar(255, 0, 0), 5);
+    // Draw right leg
+    line(img, footYELLOW, kneeYELLOW, Scalar(255, 0, 0), 5);
+    line(img, kneeRED, hipYELLOW, Scalar(255, 0, 0), 5);
+    // Draw hips
+    line(img, hipRED, hipYELLOW, Scalar(255, 0, 0), 5);
+    // Draw shoulders
+    line(img, shoulderRED, shoulderYELLOW, Scalar(255, 0, 0), 5);
+    // Draw spine
+    line(img, head, middle_hips, Scalar(255, 0, 0), 5);
+  }
+  else
+    cout << "PROBLEME : macro DRAW" << endl;
+}
 
 int display_skeletton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat img)
 {
@@ -89,120 +119,70 @@ int display_skeletton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat i
     if (pointsRED.size() >= 4 && pointsYELLOW.size() >= 4)
     {
       // Find feet
-      Point footRED = pointsRED.at(0);
-      Point footYELLOW = pointsYELLOW.at(0);
+      footRED = pointsRED.at(0);
+      footYELLOW = pointsYELLOW.at(0);
       // Find knees
-      Point kneeRED = pointsRED.at(1);
-      Point kneeYELLOW = pointsYELLOW.at(1);
+      kneeRED = pointsRED.at(1);
+      kneeYELLOW = pointsYELLOW.at(1);
       // Find hips
-      Point hipRED = pointsRED.at(2);
-      Point hipYELLOW = pointsYELLOW.at(2);
+      hipRED = pointsRED.at(2);
+      hipYELLOW = pointsYELLOW.at(2);
       // Find middle of the hips
-      Point middle_hips;
+      middle_hips;
       middle_hips.x = (hipRED.x + hipYELLOW.x) / 2;
       // Find shoulders
-      Point shoulderRED = pointsRED.at(3);
-      Point shoulderYELLOW = pointsYELLOW.at(3);
+      shoulderRED = pointsRED.at(3);
+      shoulderYELLOW = pointsYELLOW.at(3);
 
       // Find head
-      Point head = (shoulderRED + shoulderYELLOW) / 2;
+      head = (shoulderRED + shoulderYELLOW) / 2;
       if (pointsRED.size() == 5)
         head = pointsRED.at(4);
 
-      // Draw left leg
-      line(img, footRED, kneeRED, Scalar(255, 0, 0), 5);
-      line(img, kneeRED, hipRED, Scalar(255, 0, 0), 5);
-      // Draw right leg
-      line(img, footYELLOW, kneeYELLOW, Scalar(255, 0, 0), 5);
-      line(img, kneeRED, hipYELLOW, Scalar(255, 0, 0), 5);
-      // Draw hips
-      line(img, hipRED, hipYELLOW, Scalar(255, 0, 0), 5);
-      // Draw shoulders
-      line(img, shoulderRED, shoulderYELLOW, Scalar(255, 0, 0), 5);
-      // Draw spine
-      line(img, head, middle_hips, Scalar(255, 0, 0), 5);
-
-      cout << "ANGLE : " << innerAngle(footRED.x, footRED.y, kneeRED.x, kneeRED.y, hipRED.x, hipRED.y) << endl;
-
-
+      draw_lines(img, DRAW_YELLOW_AND_RED);
+      computeAngles(DRAW_YELLOW_AND_RED);
       //auto frame_middle = img.rows / 2;
 
-    }/*
-    else if (pointsRED.size() >= 4 && pointsYELLOW.size() >= 4)
-    {
-      // Find feet
-      Point footRED = pointsRED.at(0);
-      Point footYELLOW = pointsYELLOW.at(0);
-      // Find knees
-      Point kneeRED = pointsRED.at(1);
-      Point kneeYELLOW = pointsYELLOW.at(1);
-      // Find hips
-      Point hipRED = pointsRED.at(2);
-      Point hipYELLOW = pointsYELLOW.at(2);
-      // Find middle of the hips
-      Point middle_hips;
-      middle_hips.x = (hipRED.x + hipYELLOW.x) / 2;
-      // Find shoulders
-      Point shoulderRED = pointsRED.at(3);
-      Point shoulderYELLOW = pointsYELLOW.at(3);
-      // Find head
-      Point head = (shoulderRED + shoulderYELLOW) / 2;
-
-      // Draw left leg
-      line(img, footRED, kneeRED, Scalar(255, 0, 0), 5);
-      line(img, kneeRED, hipRED, Scalar(255, 0, 0), 5);
-      // Draw right leg
-      line(img, footYELLOW, kneeYELLOW, Scalar(255, 0, 0), 5);
-      line(img, kneeRED, hipYELLOW, Scalar(255, 0, 0), 5);
-      // Draw hips
-      line(img, hipRED, hipYELLOW, Scalar(255, 0, 0), 5);
-      // Draw shoulders
-      line(img, shoulderRED, shoulderYELLOW, Scalar(255, 0, 0), 5);
-      // Draw spine
-      line(img, head, middle_hips, Scalar(255, 0, 0), 5);
-
-      cout << "ANGLE : " << innerAngle(footRED.x, footRED.y, kneeRED.x, kneeRED.y, hipRED.x, hipRED.y) << endl;
-
-    }*/
+    }
     // Only RED - Profil gauche
     else if (pointsRED.size() >= 4 && pointsYELLOW.empty())
     {
       // Find feet
-      Point footRED = pointsRED.at(0);
+      footRED = pointsRED.at(0);
       // Find knees
-      Point kneeRED = pointsRED.at(1);
+      kneeRED = pointsRED.at(1);
       // Find hips
-      Point hipRED = pointsRED.at(2);
+      hipRED = pointsRED.at(2);
       // Find shoulders
-      Point shoulderRED = pointsRED.at(3);
+      shoulderRED = pointsRED.at(3);
+      // Find "head"
+      head = shoulderRED;
       // Relies all point
-      line(img, footRED, kneeRED, Scalar(255, 0, 0), 5);
-      line(img, kneeRED, hipRED, Scalar(255, 0, 0), 5);
-      line(img, hipRED, shoulderRED, Scalar(255, 0, 0), 5);
-        //line(img, shoulderRED, head, Scalar(255, 0, 0), 5);
+
+      draw_lines(img, DRAW_RED_ONLY);
+      computeAngles(DRAW_RED_ONLY);
     }
     // Only YELLOW - Profil droit
     else if (pointsRED.empty() && pointsYELLOW.size() >= 4)
     {
       // Find feet
-      Point footYELLOW = pointsYELLOW.at(0);
+      footYELLOW = pointsYELLOW.at(0);
       // Find knees
-      Point kneeYELLOW = pointsYELLOW.at(1);
+      kneeYELLOW = pointsYELLOW.at(1);
       // Find hips
-      Point hipYELLOW = pointsYELLOW.at(2);
+      hipYELLOW = pointsYELLOW.at(2);
       // Find shoulders
-      Point shoulderYELLOW = pointsYELLOW.at(3);
-        // Relies all points
-	    line(img, footYELLOW, kneeYELLOW, Scalar(255, 0, 0), 5);
-      line(img, kneeYELLOW, hipYELLOW, Scalar(255, 0, 0), 5);
-      line(img, hipYELLOW, shoulderYELLOW, Scalar(255, 0, 0), 5);
-      //line(img, shoulderYELLOW, head, Scalar(255, 0, 0), 5);
-
+      shoulderYELLOW = pointsYELLOW.at(3);
+      // Find "head"
+      head = shoulderYELLOW;
+      // Relies all points
+      draw_lines(img, DRAW_YELLOW_ONLY);
+      computeAngles(DRAW_YELLOW_ONLY);
       //arrowedLine(img, nearestRED[0], nearestYELLOW[0], Scalar(255, 0, 0),5);
     }
     // 0 RED - 0 YELLOW
     else
-      cout << "No data" << endl;
+      cout << "No valid data" << endl;
 
     return 1;
 
