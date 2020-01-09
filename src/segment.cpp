@@ -13,7 +13,7 @@
 using namespace std;
 using namespace cv;
 
-#define CONTOUR_AREA_MIN  10000
+#define CONTOUR_AREA_MIN  90000
 
 /*vector<Point> find_nearest_plot(vector<vector<Point>> contours)
 {
@@ -76,14 +76,17 @@ vector<Point> get_points(vector<vector<Point>> contours)
   return result;
 }
 
-
+void computeAngles()
+{
+  
+}
 
 
 int display_skeletton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat img)
 {
   //cout << "===> nb point : " << pointsRED.size() << endl;
     //  RED - YELLOW
-    if (pointsRED.size() >= 5 && pointsYELLOW.size() >= 5)
+    if (pointsRED.size() >= 4 && pointsYELLOW.size() >= 4)
     {
       // Find feet
       Point footRED = pointsRED.at(0);
@@ -100,8 +103,11 @@ int display_skeletton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat i
       // Find shoulders
       Point shoulderRED = pointsRED.at(3);
       Point shoulderYELLOW = pointsYELLOW.at(3);
+
       // Find head
-      Point head = pointsRED.at(4);
+      Point head = (shoulderRED + shoulderYELLOW) / 2;
+      if (pointsRED.size() == 5)
+        head = pointsRED.at(4);
 
       // Draw left leg
       line(img, footRED, kneeRED, Scalar(255, 0, 0), 5);
@@ -121,7 +127,7 @@ int display_skeletton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat i
 
       //auto frame_middle = img.rows / 2;
 
-    }
+    }/*
     else if (pointsRED.size() >= 4 && pointsYELLOW.size() >= 4)
     {
       // Find feet
@@ -157,7 +163,7 @@ int display_skeletton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat i
 
       cout << "ANGLE : " << innerAngle(footRED.x, footRED.y, kneeRED.x, kneeRED.y, hipRED.x, hipRED.y) << endl;
 
-    }
+    }*/
     // Only RED - Profil gauche
     else if (pointsRED.size() >= 4 && pointsYELLOW.empty())
     {
@@ -176,8 +182,16 @@ int display_skeletton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat i
         //line(img, shoulderRED, head, Scalar(255, 0, 0), 5);
     }
     // Only YELLOW - Profil droit
-    /*else if (pointsRED.empty() && pointsYELLOW.size() >= 5)
+    else if (pointsRED.empty() && pointsYELLOW.size() >= 4)
     {
+      // Find feet
+      Point footYELLOW = pointsYELLOW.at(0);
+      // Find knees
+      Point kneeYELLOW = pointsYELLOW.at(1);
+      // Find hips
+      Point hipYELLOW = pointsYELLOW.at(2);
+      // Find shoulders
+      Point shoulderYELLOW = pointsYELLOW.at(3);
         // Relies all points
 	    line(img, footYELLOW, kneeYELLOW, Scalar(255, 0, 0), 5);
       line(img, kneeYELLOW, hipYELLOW, Scalar(255, 0, 0), 5);
@@ -185,7 +199,7 @@ int display_skeletton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat i
       //line(img, shoulderYELLOW, head, Scalar(255, 0, 0), 5);
 
       //arrowedLine(img, nearestRED[0], nearestYELLOW[0], Scalar(255, 0, 0),5);
-    }*/
+    }
     // 0 RED - 0 YELLOW
     else
       cout << "No data" << endl;
