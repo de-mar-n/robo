@@ -31,7 +31,7 @@ void print(vector<Point> input)
 
 bool compare_point(const Point& a, const Point& b)
 {
-  return a.y < b.y;
+  return a.y > b.y;
 }
 
 // Get center of each contour
@@ -273,6 +273,10 @@ int find_plots(char *inputVideo)
   vector<Point> pointsYELLOW = get_points(contoursYELLOW);
   sort(pointsRED.begin(), pointsRED.end(), compare_point);
   sort(pointsYELLOW.begin(), pointsYELLOW.end(), compare_point);
+  if (pointsRED.size() > 4)
+    pointsRED = vector<Point>(pointsRED.begin(), pointsRED.begin() + 3);
+  if (pointsYELLOW.size() > 4)
+    pointsYELLOW = vector<Point>(pointsYELLOW.begin(), pointsYELLOW.begin() + 3);
 
   // Merge res2 (for red plot) and res3 (for yellow plot)
   addWeighted(res2,1,res3,1,0,final_output);
