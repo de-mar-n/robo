@@ -212,38 +212,29 @@ int find_plots(char *inputVideo)
     cvtColor(frame, hsv, COLOR_BGR2HSV);
     cvtColor(frame, gray_frame, COLOR_RGB2GRAY);
 
-  Mat mask1,mask2,mask3;
-  // Creating masks to detect the upper and lower red color
-  // Red got 2 inRange because it's a major color while yellow is a minor
-  inRange(hsv, Scalar(0, 120, 70), Scalar(10, 255, 255), mask1);
-  inRange(hsv, Scalar(170, 120, 70), Scalar(180, 255, 255), mask2);
+  Mat mask_left = create_mask_left(hsv);
+  Mat mask_right = create_mask_right(hsv);
 
-  // Creating masks to detect the upper and lower yellow color.
-  inRange(hsv, Scalar(20, 150, 150), Scalar(50, 255, 255), mask3);
-
-  // Generating the final red mask
-  mask1 = mask1 + mask2;
-
-  // Reconize the figure of the red plot
+  // Reconize the figure of the LEFT point
   Mat kernel = Mat::ones(3,3, CV_32F);
-  morphologyEx(mask1,mask1,cv::MORPH_OPEN,kernel);
-  morphologyEx(mask1,mask1,cv::MORPH_DILATE,kernel);
+  morphologyEx(mask_left, mask_left, cv::MORPH_OPEN, kernel);
+  morphologyEx(mask_left, mask_left, cv::MORPH_DILATE, kernel);
 
-  // Reconize the figure of the yellow plot
-  morphologyEx(mask3,mask3,cv::MORPH_OPEN,kernel);
-  morphologyEx(mask3,mask3,cv::MORPH_DILATE,kernel);
+  // Reconize the figure of the RIGHT point
+  morphologyEx(mask_right, mask_right, cv::MORPH_OPEN, kernel);
+  morphologyEx(mask_right, mask_right, cv::MORPH_DILATE, kernel);
 
   Mat res1, res2, res3, final_output;
   /*// creating an inverted mask to segment out the cloth from the frame
-  bitwise_not(mask1,mask2); // for the res1 only
-  // creating image: red plots go in black
+  bitwise_not(mask1, mask2); // for the res1 only
+  // creating image: LEFT plots go in black
   bitwise_and(frame,frame,res1,mask2);*/
 
-  // creating image: black background and red plot
-  bitwise_and(frame,frame,res2,mask1);
+  // creating image: black background and LEFT plot
+  bitwise_and(frame, frame, res2, mask_left);
 
-  // creating image: black background and yellow plots
-  bitwise_and(frame,frame, res3,mask3);
+  // creating image: black background and RIGHT plots
+  bitwise_and(frame, frame, res3, mask_right);
 
 
 // -----------------------

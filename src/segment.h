@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
@@ -9,6 +11,7 @@
 #include <stdlib.h>
 
 #include "math_fct.h"
+#include "custom.h"
 
 using namespace std;
 using namespace cv;
