@@ -3,10 +3,6 @@
 
 #define CONTOUR_AREA_MIN  90000
 
-#define DRAW_YELLOW_ONLY    1
-#define DRAW_RED_ONLY       2
-#define DRAW_YELLOW_AND_RED  3
-
 vector<vector<Point>> delete_noise(vector<vector<Point>> contours)
 {
   vector<Moments> mu(contours.size());
@@ -53,24 +49,24 @@ vector<Point> get_points(vector<vector<Point>> contours)
   return result;
 }
 
-void compute_angles(int video_type)
+void compute_angles(VideoType video_type)
 {
-  if (video_type == DRAW_YELLOW_ONLY)
+  if (video_type == DRAW_RIGHT_ONLY)
   {
-    cout << "ANGLE GENOU: " << inner_angle(footYELLOW, kneeYELLOW, hipYELLOW) << endl;
-    cout << "ANGLE HANCHE: " << inner_angle(kneeYELLOW, hipYELLOW, shoulderYELLOW) << endl;
+    cout << "ANGLE GENOU: " << inner_angle(foot_right, knee_right, hip_right) << endl;
+    cout << "ANGLE HANCHE: " << inner_angle(knee_right, hip_right, shoulder_right) << endl;
   }
-  else if (video_type == DRAW_RED_ONLY)
+  else if (video_type == DRAW_LEFT_ONLY)
   {
-    cout << "ANGLE GENOU: " << inner_angle(footRED, kneeRED, hipRED) << endl;
-    cout << "ANGLE HANCHE: " << inner_angle(kneeRED, hipRED, shoulderRED) << endl;
+    cout << "ANGLE GENOU: " << inner_angle(foot_left, knee_left, hip_left) << endl;
+    cout << "ANGLE HANCHE: " << inner_angle(knee_left, hip_left, shoulder_left) << endl;
   }
-  else if (video_type == DRAW_YELLOW_AND_RED)
+  else if (video_type == DRAW_LEFT_AND_RIGHT)
   {
-    cout << "ANGLE GENOU GAUCHE: " << inner_angle(footYELLOW, kneeYELLOW, hipYELLOW) << endl;
-    cout << "ANGLE HANCHE GAUCHE: " << inner_angle(kneeYELLOW, hipYELLOW, shoulderYELLOW) << endl;
-    cout << "ANGLE GENOU DROIT: " << inner_angle(footRED, kneeRED, hipRED) << endl;
-    cout << "ANGLE HANCHE DROITE: " << inner_angle(kneeRED, hipRED, shoulderRED) << endl;
+    cout << "ANGLE GENOU GAUCHE: " << inner_angle(foot_right, knee_right, hip_right) << endl;
+    cout << "ANGLE HANCHE GAUCHE: " << inner_angle(knee_right, hip_right, shoulder_right) << endl;
+    cout << "ANGLE GENOU DROIT: " << inner_angle(foot_left, knee_left, hip_left) << endl;
+    cout << "ANGLE HANCHE DROITE: " << inner_angle(knee_left, hip_left, shoulder_left) << endl;
   }
   else
     cout << "ERROR: can't compute angles, no data found" << endl;
@@ -81,34 +77,34 @@ void draw_line(Mat img, Point p1, Point p2)
   line(img, p1, p2, Scalar(255, 0, 0), 5);
 }
 
-void draw_lines(Mat img, int video_type)
+void draw_lines(Mat img, VideoType video_type)
 {
-  if (video_type == DRAW_YELLOW_ONLY)
+  if (video_type == DRAW_RIGHT_ONLY)
   {
-    draw_line(img, footYELLOW, kneeYELLOW);
-    draw_line(img, kneeYELLOW, hipYELLOW);
-    draw_line(img, hipYELLOW, shoulderYELLOW);
-    draw_line(img, shoulderYELLOW, head);
+    draw_line(img, foot_right, knee_right);
+    draw_line(img, knee_right, hip_right);
+    draw_line(img, hip_right, shoulder_right);
+    draw_line(img, shoulder_right, head);
   }
-  else if (video_type == DRAW_RED_ONLY)
+  else if (video_type == DRAW_LEFT_ONLY)
   {
-    draw_line(img, footRED, kneeRED);
-    draw_line(img, kneeRED, hipRED);
-    draw_line(img, hipRED, shoulderRED);
-    draw_line(img, shoulderRED, head);
+    draw_line(img, foot_left, knee_left);
+    draw_line(img, knee_left, hip_left);
+    draw_line(img, hip_left, shoulder_left);
+    draw_line(img, shoulder_left, head);
   }
-  else if (video_type == DRAW_YELLOW_AND_RED)
+  else if (video_type == DRAW_LEFT_AND_RIGHT)
   {
     // Draw left leg
-    draw_line(img, footRED, kneeRED);
-    draw_line(img, kneeRED, hipRED);
+    draw_line(img, foot_left, knee_left);
+    draw_line(img, knee_left, hip_left);
     // Draw right leg
-    draw_line(img, footYELLOW, kneeYELLOW);
-    draw_line(img, kneeRED, hipYELLOW);
+    draw_line(img, foot_right, knee_right);
+    draw_line(img, knee_left, hip_right);
     // Draw hips
-    draw_line(img, hipRED, hipYELLOW);
+    draw_line(img, hip_left, hip_right);
     // Draw shoulders
-    draw_line(img, shoulderRED, shoulderYELLOW);
+    draw_line(img, shoulder_left, shoulder_right);
     // Draw spine
     draw_line(img, head, middle_hips);
   }
@@ -116,75 +112,75 @@ void draw_lines(Mat img, int video_type)
     cout << "PROBLEME : macro DRAW" << endl;
 }
 
-int display_skeleton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat img)
+int display_skeleton(vector<Point> points_left, vector<Point> points_right, Mat img)
 {
-  //cout << "===> nb point : " << pointsRED.size() << endl;
-    //  RED - YELLOW
-    if (pointsRED.size() >= 4 && pointsYELLOW.size() >= 4)
+  //cout << "===> nb point : " << points_left.size() << endl;
+    //  LEFT - RIGHT
+    if (points_left.size() >= 4 && points_right.size() >= 4)
     {
       // Find feet
-      footRED = pointsRED.at(0);
-      footYELLOW = pointsYELLOW.at(0);
+      foot_left = points_left.at(0);
+      foot_right = points_right.at(0);
       // Find knees
-      kneeRED = pointsRED.at(1);
-      kneeYELLOW = pointsYELLOW.at(1);
+      knee_left = points_left.at(1);
+      knee_right = points_right.at(1);
       // Find hips
-      hipRED = pointsRED.at(2);
-      hipYELLOW = pointsYELLOW.at(2);
+      hip_left = points_left.at(2);
+      hip_right = points_right.at(2);
       // Find middle of the hips
       middle_hips;
-      middle_hips.x = (hipRED.x + hipYELLOW.x) / 2;
+      middle_hips.x = (hip_left.x + hip_right.x) / 2;
       // Find shoulders
-      shoulderRED = pointsRED.at(3);
-      shoulderYELLOW = pointsYELLOW.at(3);
+      shoulder_left = points_left.at(3);
+      shoulder_right = points_right.at(3);
 
       // Find head
-      head = (shoulderRED + shoulderYELLOW) / 2;
-      if (pointsRED.size() == 5)
-        head = pointsRED.at(4);
+      head = (shoulder_left + shoulder_right) / 2;
+      if (points_left.size() == 5)
+        head = points_left.at(4);
 
-      draw_lines(img, DRAW_YELLOW_AND_RED);
-      compute_angles(DRAW_YELLOW_AND_RED);
+      draw_lines(img, DRAW_LEFT_AND_RIGHT);
+      compute_angles(DRAW_LEFT_AND_RIGHT);
       //auto frame_middle = img.rows / 2;
 
     }
-    // Only RED - Profil gauche
-    else if (pointsRED.size() >= 4 && pointsYELLOW.empty())
+    // Only LEFT - Profil gauche
+    else if (points_left.size() >= 4 && points_right.empty())
     {
       // Find feet
-      footRED = pointsRED.at(0);
+      foot_left = points_left.at(0);
       // Find knees
-      kneeRED = pointsRED.at(1);
+      knee_left = points_left.at(1);
       // Find hips
-      hipRED = pointsRED.at(2);
+      hip_left = points_left.at(2);
       // Find shoulders
-      shoulderRED = pointsRED.at(3);
+      shoulder_left = points_left.at(3);
       // Find "head"
-      head = shoulderRED;
+      head = shoulder_left;
       // Relies all point
 
-      draw_lines(img, DRAW_RED_ONLY);
-      compute_angles(DRAW_RED_ONLY);
+      draw_lines(img, DRAW_LEFT_ONLY);
+      compute_angles(DRAW_LEFT_ONLY);
     }
-    // Only YELLOW - Profil droit
-    else if (pointsRED.empty() && pointsYELLOW.size() >= 4)
+    // Only RIGHT - Profil droit
+    else if (points_left.empty() && points_right.size() >= 4)
     {
       // Find feet
-      footYELLOW = pointsYELLOW.at(0);
+      foot_right = points_right.at(0);
       // Find knees
-      kneeYELLOW = pointsYELLOW.at(1);
+      knee_right = points_right.at(1);
       // Find hips
-      hipYELLOW = pointsYELLOW.at(2);
+      hip_right = points_right.at(2);
       // Find shoulders
-      shoulderYELLOW = pointsYELLOW.at(3);
+      shoulder_right = points_right.at(3);
       // Find "head"
-      head = shoulderYELLOW;
+      head = shoulder_right;
       // Relies all points
-      draw_lines(img, DRAW_YELLOW_ONLY);
-      compute_angles(DRAW_YELLOW_ONLY);
-      //arrowedLine(img, nearestRED[0], nearestYELLOW[0], Scalar(255, 0, 0),5);
+      draw_lines(img, DRAW_RIGHT_ONLY);
+      compute_angles(DRAW_RIGHT_ONLY);
+      //arrowedLine(img, nearest_left[0], nearest_right[0], Scalar(255, 0, 0),5);
     }
-    // 0 RED - 0 YELLOW
+    // 0 left - 0 right
     else
       cout << "No valid data" << endl;
 
@@ -255,37 +251,37 @@ int find_plots(char *inputVideo)
   int thresh = 100;
   int max_thresh = 255;
   RNG rng(12345);
-  vector<vector<Point>> contoursRED;
-  vector<vector<Point>> contoursYELLOW;
+  vector<vector<Point>> contours_left;
+  vector<vector<Point>> contours_right;
   vector<Vec4i> hierarchy;
 
-  /// Detect RED plot using canny
+  /// Detect LEFT plot using canny
   Canny( res2, canny_output, thresh, thresh*2, 3 );
-  findContours(canny_output, contoursRED, hierarchy,  cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, Point(0, 0));
+  findContours(canny_output, contours_left, hierarchy,  cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, Point(0, 0));
 
-  // Detect YELLOW plot using canny
+  // Detect RIGHT plot using canny
   Canny( res3, canny_output, thresh, thresh*2, 3 );
-  findContours(canny_output, contoursYELLOW, hierarchy,  cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, Point(0, 0));
+  findContours(canny_output, contours_right, hierarchy,  cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, Point(0, 0));
 
   // Enleve le bruit
-  contoursRED = delete_noise(contoursRED);
-  contoursYELLOW = delete_noise(contoursYELLOW);
-  //cout << "NB 2 : " << contoursRED.size() << endl;
+  contours_left = delete_noise(contours_left);
+  contours_right = delete_noise(contours_right);
+  //cout << "NB 2 : " << contours_left.size() << endl;
   // Sort
-  vector<Point> pointsRED = get_points(contoursRED);
-  vector<Point> pointsYELLOW = get_points(contoursYELLOW);
-  sort(pointsRED.begin(), pointsRED.end(), compare_point);
-  sort(pointsYELLOW.begin(), pointsYELLOW.end(), compare_point);
-  if (pointsRED.size() > 4)
-    pointsRED = vector<Point>(pointsRED.begin(), pointsRED.begin() + 3);
-  if (pointsYELLOW.size() > 4)
-    pointsYELLOW = vector<Point>(pointsYELLOW.begin(), pointsYELLOW.begin() + 3);
+  vector<Point> points_left = get_points(contours_left);
+  vector<Point> points_right = get_points(contours_right);
+  sort(points_left.begin(), points_left.end(), compare_point);
+  sort(points_right.begin(), points_right.end(), compare_point);
+  if (points_left.size() > 4)
+    points_left = vector<Point>(points_left.begin(), points_left.begin() + 3);
+  if (points_right.size() > 4)
+    points_right = vector<Point>(points_right.begin(), points_right.begin() + 3);
 
   // Merge res2 (for red plot) and res3 (for yellow plot)
   addWeighted(res2,1,res3,1,0,final_output);
 
   // Compute distance between 2 nearest plots from 2 diffrent colors
-  result = display_skeleton(pointsRED, pointsYELLOW, final_output);
+  result = display_skeleton(points_left, points_right, final_output);
   //print_directive(result);
 // ------------------------------
 

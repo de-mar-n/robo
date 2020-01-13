@@ -13,20 +13,27 @@
 using namespace std;
 using namespace cv;
 
+enum VideoType
+{
+  DRAW_RIGHT_ONLY = 1,
+  DRAW_LEFT_ONLY = 2,
+  DRAW_LEFT_AND_RIGHT = 3
+};
+
 // Feet
-Point footRED;
-Point footYELLOW;
+Point foot_left;
+Point foot_right;
 // Knees
-Point kneeRED;
-Point kneeYELLOW;
+Point knee_left;
+Point knee_right;
 // Hips
-Point hipRED;
-Point hipYELLOW;
+Point hip_left;
+Point hip_right;
 // Middle of the hips
 Point middle_hips;
 // Shoulders
-Point shoulderRED;
-Point shoulderYELLOW;
+Point shoulder_left;
+Point shoulder_right;
 // Head
 Point head;
 
