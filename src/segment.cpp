@@ -112,7 +112,7 @@ void draw_lines(Mat img, int video_type)
     cout << "PROBLEME : macro DRAW" << endl;
 }
 
-int display_skeletton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat img)
+int display_skeleton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat img)
 {
   //cout << "===> nb point : " << pointsRED.size() << endl;
     //  RED - YELLOW
@@ -282,7 +282,7 @@ int find_plots(char *inputVideo)
   addWeighted(res2,1,res3,1,0,final_output);
 
   // Compute distance between 2 nearest plots from 2 diffrent colors
-  result = display_skeletton(pointsRED, pointsYELLOW, final_output);
+  result = display_skeleton(pointsRED, pointsYELLOW, final_output);
   //print_directive(result);
 // ------------------------------
 
