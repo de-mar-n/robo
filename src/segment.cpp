@@ -53,60 +53,64 @@ vector<Point> get_points(vector<vector<Point>> contours)
   return result;
 }
 
-void computeAngles(int video_type)
+void compute_angles(int video_type)
 {
   if (video_type == DRAW_YELLOW_ONLY)
   {
-    cout << "ANGLE GENOU: " << innerAngle(footYELLOW.x, footYELLOW.y, kneeYELLOW.x, kneeYELLOW.y, hipYELLOW.x, hipYELLOW.y) << endl;
-    cout << "ANGLE HANCHE: " << innerAngle(kneeYELLOW.x, kneeYELLOW.y, hipYELLOW.x, hipYELLOW.y, shoulderYELLOW.x, shoulderYELLOW.y) << endl;
-
+    cout << "ANGLE GENOU: " << inner_angle(footYELLOW, kneeYELLOW, hipYELLOW) << endl;
+    cout << "ANGLE HANCHE: " << inner_angle(kneeYELLOW, hipYELLOW, shoulderYELLOW) << endl;
   }
   else if (video_type == DRAW_RED_ONLY)
   {
-    cout << "ANGLE GENOU: " << innerAngle(footRED.x, footRED.y, kneeRED.x, kneeRED.y, hipRED.x, hipRED.y) << endl;
-    cout << "ANGLE HANCHE: " << innerAngle(kneeRED.x, kneeRED.y, hipRED.x, hipRED.y, shoulderRED.x, shoulderRED.y) << endl;
+    cout << "ANGLE GENOU: " << inner_angle(footRED, kneeRED, hipRED) << endl;
+    cout << "ANGLE HANCHE: " << inner_angle(kneeRED, hipRED, shoulderRED) << endl;
   }
   else if (video_type == DRAW_YELLOW_AND_RED)
   {
-    cout << "ANGLE GENOU GAUCHE: " << innerAngle(footYELLOW.x, footYELLOW.y, kneeYELLOW.x, kneeYELLOW.y, hipYELLOW.x, hipYELLOW.y) << endl;
-    cout << "ANGLE HANCHE GAUCHE: " << innerAngle(kneeYELLOW.x, kneeYELLOW.y, hipYELLOW.x, hipYELLOW.y, shoulderYELLOW.x, shoulderYELLOW.y) << endl;
-    cout << "ANGLE GENOU DROIT: " << innerAngle(footRED.x, footRED.y, kneeRED.x, kneeRED.y, hipRED.x, hipRED.y) << endl;
-    cout << "ANGLE HANCHE DROITE: " << innerAngle(kneeRED.x, kneeRED.y, hipRED.x, hipRED.y, shoulderRED.x, shoulderRED.y) << endl;
+    cout << "ANGLE GENOU GAUCHE: " << inner_angle(footYELLOW, kneeYELLOW, hipYELLOW) << endl;
+    cout << "ANGLE HANCHE GAUCHE: " << inner_angle(kneeYELLOW, hipYELLOW, shoulderYELLOW) << endl;
+    cout << "ANGLE GENOU DROIT: " << inner_angle(footRED, kneeRED, hipRED) << endl;
+    cout << "ANGLE HANCHE DROITE: " << inner_angle(kneeRED, hipRED, shoulderRED) << endl;
   }
   else
     cout << "ERROR: can't compute angles, no data found" << endl;
+}
+
+void draw_line(Mat img, Point p1, Point p2)
+{
+  line(img, p1, p2, Scalar(255, 0, 0), 5);
 }
 
 void draw_lines(Mat img, int video_type)
 {
   if (video_type == DRAW_YELLOW_ONLY)
   {
-    line(img, footYELLOW, kneeYELLOW, Scalar(255, 0, 0), 5);
-    line(img, kneeYELLOW, hipYELLOW, Scalar(255, 0, 0), 5);
-    line(img, hipYELLOW, shoulderYELLOW, Scalar(255, 0, 0), 5);
-    line(img, shoulderYELLOW, head, Scalar(255, 0, 0), 5);
+    draw_line(img, footYELLOW, kneeYELLOW);
+    draw_line(img, kneeYELLOW, hipYELLOW);
+    draw_line(img, hipYELLOW, shoulderYELLOW);
+    draw_line(img, shoulderYELLOW, head);
   }
   else if (video_type == DRAW_RED_ONLY)
   {
-    line(img, footRED, kneeRED, Scalar(255, 0, 0), 5);
-    line(img, kneeRED, hipRED, Scalar(255, 0, 0), 5);
-    line(img, hipRED, shoulderRED, Scalar(255, 0, 0), 5);
-    line(img, shoulderRED, head, Scalar(255, 0, 0), 5);
+    draw_line(img, footRED, kneeRED);
+    draw_line(img, kneeRED, hipRED);
+    draw_line(img, hipRED, shoulderRED);
+    draw_line(img, shoulderRED, head);
   }
   else if (video_type == DRAW_YELLOW_AND_RED)
   {
     // Draw left leg
-    line(img, footRED, kneeRED, Scalar(255, 0, 0), 5);
-    line(img, kneeRED, hipRED, Scalar(255, 0, 0), 5);
+    draw_line(img, footRED, kneeRED);
+    draw_line(img, kneeRED, hipRED);
     // Draw right leg
-    line(img, footYELLOW, kneeYELLOW, Scalar(255, 0, 0), 5);
-    line(img, kneeRED, hipYELLOW, Scalar(255, 0, 0), 5);
+    draw_line(img, footYELLOW, kneeYELLOW);
+    draw_line(img, kneeRED, hipYELLOW);
     // Draw hips
-    line(img, hipRED, hipYELLOW, Scalar(255, 0, 0), 5);
+    draw_line(img, hipRED, hipYELLOW);
     // Draw shoulders
-    line(img, shoulderRED, shoulderYELLOW, Scalar(255, 0, 0), 5);
+    draw_line(img, shoulderRED, shoulderYELLOW);
     // Draw spine
-    line(img, head, middle_hips, Scalar(255, 0, 0), 5);
+    draw_line(img, head, middle_hips);
   }
   else
     cout << "PROBLEME : macro DRAW" << endl;
@@ -140,7 +144,7 @@ int display_skeleton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat im
         head = pointsRED.at(4);
 
       draw_lines(img, DRAW_YELLOW_AND_RED);
-      computeAngles(DRAW_YELLOW_AND_RED);
+      compute_angles(DRAW_YELLOW_AND_RED);
       //auto frame_middle = img.rows / 2;
 
     }
@@ -160,7 +164,7 @@ int display_skeleton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat im
       // Relies all point
 
       draw_lines(img, DRAW_RED_ONLY);
-      computeAngles(DRAW_RED_ONLY);
+      compute_angles(DRAW_RED_ONLY);
     }
     // Only YELLOW - Profil droit
     else if (pointsRED.empty() && pointsYELLOW.size() >= 4)
@@ -177,7 +181,7 @@ int display_skeleton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat im
       head = shoulderYELLOW;
       // Relies all points
       draw_lines(img, DRAW_YELLOW_ONLY);
-      computeAngles(DRAW_YELLOW_ONLY);
+      compute_angles(DRAW_YELLOW_ONLY);
       //arrowedLine(img, nearestRED[0], nearestYELLOW[0], Scalar(255, 0, 0),5);
     }
     // 0 RED - 0 YELLOW
@@ -187,7 +191,6 @@ int display_skeleton(vector<Point> pointsRED, vector<Point> pointsYELLOW, Mat im
     return 1;
 
 }
-
 
 int find_plots(char *inputVideo)
 {

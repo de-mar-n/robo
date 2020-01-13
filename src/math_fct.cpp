@@ -1,7 +1,7 @@
 #include "math_fct.h"
 
 
-float innerAngle(float px1, float py1, float px2, float py2, float cx1, float cy1)
+float inner_angle_coor(float px1, float py1, float px2, float py2, float cx1, float cy1)
 {
 
   float dist1 = sqrt(  (px1-cx1)*(px1-cx1) + (py1-cy1)*(py1-cy1) );
@@ -41,4 +41,9 @@ float innerAngle(float px1, float py1, float px2, float py2, float cx1, float cy
   A = A*180/M_PI;
 
   return A;
+}
+
+float inner_angle(cv::Point p1, cv::Point p2, cv::Point c1)
+{
+  return inner_angle_coor(p1.x, p1.y, p2.x, p2.y, c1.x, c1.y);
 }

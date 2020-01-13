@@ -14,4 +14,5 @@
 #endif
 
 
-float innerAngle(float px1, float py1, float px2, float py2, float cx1, float cy1);
+float inner_angle_coor(float px1, float py1, float px2, float py2, float cx1, float cy1);
+float inner_angle(cv::Point p1, cv::Point p2, cv::Point c1);
