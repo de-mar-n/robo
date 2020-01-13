@@ -258,11 +258,11 @@ int find_plots(char *inputVideo)
 
   /// Detect RED plot using canny
   Canny( res2, canny_output, thresh, thresh*2, 3 );
-  findContours(canny_output, contoursRED, hierarchy,  CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+  findContours(canny_output, contoursRED, hierarchy,  cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, Point(0, 0));
 
   // Detect YELLOW plot using canny
   Canny( res3, canny_output, thresh, thresh*2, 3 );
-  findContours(canny_output, contoursYELLOW, hierarchy,  CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+  findContours(canny_output, contoursYELLOW, hierarchy,  cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, Point(0, 0));
 
   // Enleve le bruit
   contoursRED = delete_noise(contoursRED);
