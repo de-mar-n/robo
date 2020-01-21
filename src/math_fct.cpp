@@ -47,3 +47,18 @@ float inner_angle(cv::Point p1, cv::Point p2, cv::Point c1)
 {
   return inner_angle_coor(p1.x, p1.y, p2.x, p2.y, c1.x, c1.y);
 }
+
+
+
+void print(vector<Point> input)
+{
+  for (int i = 0; i < input.size(); ++i)
+      cout << input.at(i) << ' ';
+  cout << '\n' << endl;
+}
+void print_vect_angle(vector<float> input)
+{
+  for (int i = 0; i < input.size(); ++i)
+      cout << input.at(i) << ' ';
+  cout << '\n' << endl;
+}

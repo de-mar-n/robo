@@ -40,6 +40,13 @@ Point shoulder_right;
 // Head
 Point head;
 
+// Array of angles computed
+vector<float> kneesAnglesLEFT;
+vector<float> kneesAnglesRIGHT;
+vector<float> hipsAnglesLEFT;
+vector<float> hipsAnglesRIGHT;
+
+
 /*vector<Point> find_nearest_plot(vector<vector<Point>> contours)
 {
   vector<Moments> mu(contours.size() );
