@@ -1,6 +1,8 @@
 #pragma once
 
 #include "math_fct.h"
+//#define RED_YELLOW_MODE
+#define GREEN_BLUE_MODE
 
 using namespace cv;
 

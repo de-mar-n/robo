@@ -53,20 +53,20 @@ void compute_angles(VideoType video_type)
 {
   if (video_type == DRAW_RIGHT_ONLY)
   {
-    cout << "ANGLE GENOU: " << inner_angle(foot_right, knee_right, hip_right) << endl;
-    cout << "ANGLE HANCHE: " << inner_angle(knee_right, hip_right, shoulder_right) << endl;
+    cout << "ANGLE GENOU (DROIT)  : " << inner_angle(foot_right, knee_right, hip_right) << endl;
+    cout << "ANGLE HANCHE (DROITE): " << inner_angle(knee_right, hip_right, shoulder_right) << endl;
   }
   else if (video_type == DRAW_LEFT_ONLY)
   {
-    cout << "ANGLE GENOU: " << inner_angle(foot_left, knee_left, hip_left) << endl;
-    cout << "ANGLE HANCHE: " << inner_angle(knee_left, hip_left, shoulder_left) << endl;
+    cout << "ANGLE GENOU (GAUCHE) : " << inner_angle(foot_left, knee_left, hip_left) << endl;
+    cout << "ANGLE HANCHE (GAUCHE): " << inner_angle(knee_left, hip_left, shoulder_left) << endl;
   }
   else if (video_type == DRAW_LEFT_AND_RIGHT)
   {
-    cout << "ANGLE GENOU GAUCHE: " << inner_angle(foot_right, knee_right, hip_right) << endl;
-    cout << "ANGLE HANCHE GAUCHE: " << inner_angle(knee_right, hip_right, shoulder_right) << endl;
-    cout << "ANGLE GENOU DROIT: " << inner_angle(foot_left, knee_left, hip_left) << endl;
-    cout << "ANGLE HANCHE DROITE: " << inner_angle(knee_left, hip_left, shoulder_left) << endl;
+    cout << "ANGLE GENOU GAUCHE   : " << inner_angle(foot_right, knee_right, hip_right) << endl;
+    cout << "ANGLE HANCHE GAUCHE  : " << inner_angle(knee_right, hip_right, shoulder_right) << endl;
+    cout << "ANGLE GENOU DROIT    : " << inner_angle(foot_left, knee_left, hip_left) << endl;
+    cout << "ANGLE HANCHE DROITE  : " << inner_angle(knee_left, hip_left, shoulder_left) << endl;
   }
   else
     cout << "ERROR: can't compute angles, no data found" << endl;
@@ -145,7 +145,7 @@ int display_skeleton(vector<Point> points_left, vector<Point> points_right, Mat 
 
     }
     // Only LEFT - Profil gauche
-    else if (points_left.size() >= 4 && points_right.empty())
+    else if (points_left.size() >= 4)
     {
       // Find feet
       foot_left = points_left.at(0);
@@ -163,7 +163,7 @@ int display_skeleton(vector<Point> points_left, vector<Point> points_right, Mat 
       compute_angles(DRAW_LEFT_ONLY);
     }
     // Only RIGHT - Profil droit
-    else if (points_left.empty() && points_right.size() >= 4)
+    else if (points_right.size() >= 4)
     {
       // Find feet
       foot_right = points_right.at(0);
