@@ -100,7 +100,7 @@ void draw_lines(Mat img, VideoType video_type)
     draw_line(img, knee_left, hip_left);
     // Draw right leg
     draw_line(img, foot_right, knee_right);
-    draw_line(img, knee_left, hip_right);
+    draw_line(img, knee_right, hip_right);
     // Draw hips
     draw_line(img, hip_left, hip_right);
     // Draw shoulders
