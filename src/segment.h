@@ -12,6 +12,7 @@
 
 #include "math_fct.h"
 #include "custom.h"
+#include "diagram.h"
 
 using namespace std;
 using namespace cv;

@@ -285,6 +285,8 @@ int find_plots(char *inputVideo)
 // ------------------------------
 
     imshow("Result", final_output);
+    create_diagram(kneesAnglesLEFT, kneesAnglesRIGHT, hipsAnglesLEFT, hipsAnglesRIGHT);
+
     if(waitKey(30) >= 0) break;
   }
   return result;
@@ -299,5 +301,4 @@ int main(int argc, char**argv)
       return 1;
   }
   return find_plots(argv[1]);
-
 }
