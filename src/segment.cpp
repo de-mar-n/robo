@@ -46,38 +46,46 @@ void compute_angles(VideoType video_type)
 {
   if (video_type == DRAW_RIGHT_ONLY)
   {
-    kneesAnglesRIGHT.push_back(inner_angle(foot_right, knee_right, hip_right));
-    hipsAnglesRIGHT.push_back(inner_angle(knee_right, hip_right, shoulder_right));
+    float knee_right_angle = inner_angle(foot_right, hip_right, knee_right);
+    float hip_right_angle = inner_angle(knee_right, shoulder_right, hip_right);
+    kneesAnglesRIGHT.push_back(knee_right_angle);
+    hipsAnglesRIGHT.push_back(hip_right_angle);
 
-    cout << "ANGLE GENOU (DROIT)  : " << kneesAnglesRIGHT.at(kneesAnglesRIGHT.size() - 1) << endl;
-    cout << "ANGLE HANCHE (DROITE): " << hipsAnglesRIGHT.at(hipsAnglesRIGHT.size() - 1) << endl;
+    cout << "ANGLE GENOU (DROIT)  : " << knee_right_angle << endl;
+    cout << "ANGLE HANCHE (DROITE): " << hip_right_angle << endl;
 
   }
   else if (video_type == DRAW_LEFT_ONLY)
   {
-    kneesAnglesLEFT.push_back(inner_angle(foot_left, knee_left, hip_left));
-    hipsAnglesLEFT.push_back(inner_angle(knee_left, hip_left, shoulder_left));
+    float knee_left_angle = inner_angle(foot_left, hip_left, knee_left);
+    float hip_left_angle = inner_angle(knee_left, shoulder_left, hip_left);
+    kneesAnglesLEFT.push_back(knee_left_angle);
+    hipsAnglesLEFT.push_back(hip_left_angle);
 
-    cout << "ANGLE GENOU (GAUCHE) : " << kneesAnglesLEFT.at(kneesAnglesLEFT.size() - 1) << endl;
-    cout << "ANGLE HANCHE (GAUCHE): " << hipsAnglesLEFT.at(hipsAnglesLEFT.size() - 1) << endl;
+    cout << "ANGLE GENOU (GAUCHE) : " << knee_left_angle << endl;
+    cout << "ANGLE HANCHE (GAUCHE): " << hip_left_angle << endl;
   }
   else if (video_type == DRAW_LEFT_AND_RIGHT)
   {
-    kneesAnglesRIGHT.push_back(inner_angle(foot_right, knee_right, hip_right));
-    hipsAnglesRIGHT.push_back(inner_angle(knee_right, hip_right, shoulder_right));
-    kneesAnglesLEFT.push_back(inner_angle(foot_left, knee_left, hip_left));
-    hipsAnglesLEFT.push_back(inner_angle(knee_left, hip_left, shoulder_left));
+    float knee_left_angle = inner_angle(foot_left, hip_left, knee_left);
+    float hip_left_angle = inner_angle(knee_left, shoulder_left, hip_left);
+    float knee_right_angle = inner_angle(foot_right, hip_right, knee_right);
+    float hip_right_angle = inner_angle(knee_right, shoulder_right, hip_right);
 
+    kneesAnglesLEFT.push_back(knee_left_angle);
+    hipsAnglesLEFT.push_back(hip_left_angle);
+    kneesAnglesRIGHT.push_back(knee_right_angle);
+    hipsAnglesRIGHT.push_back(hip_right_angle);
 
-    cout << "ANGLE GENOU DROIT   : " << kneesAnglesRIGHT.at(kneesAnglesRIGHT.size() - 1) << endl;
-    cout << "ANGLE HANCHE DROITE  : " << hipsAnglesRIGHT.at(hipsAnglesRIGHT.size() - 1) << endl;
-    cout << "ANGLE GENOU GAUCHE    : " << kneesAnglesLEFT.at(kneesAnglesLEFT.size() - 1) << endl;
-    cout << "ANGLE HANCHE GAUCHE  : " << hipsAnglesLEFT.at(hipsAnglesLEFT.size() - 1) << endl;
+    cout << "ANGLE GENOU DROIT    : " << knee_right_angle << endl;
+    cout << "ANGLE HANCHE DROITE  : " << hip_right_angle << endl;
+    cout << "ANGLE GENOU GAUCHE   : " << knee_left_angle << endl;
+    cout << "ANGLE HANCHE GAUCHE  : " << hip_left_angle << endl;
   }
   else
+  {
     cout << "ERROR: can't compute angles, no data found" << endl;
-
-
+  }
 }
 
 void draw_line(Mat img, Point p1, Point p2)
