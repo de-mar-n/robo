@@ -1,34 +1,52 @@
+#pragma once
+
 #include <iostream>
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/opencv.hpp>
-#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/imgproc/imgproc.hpp>
 #include <stdio.h>
 #include <experimental/optional>
 #include <stdlib.h>
 
 #include "math_fct.h"
+#include "custom.h"
+#include "diagram.h"
 
 using namespace std;
 using namespace cv;
 
+enum VideoType
+{
+  DRAW_RIGHT_ONLY = 1,
+  DRAW_LEFT_ONLY = 2,
+  DRAW_LEFT_AND_RIGHT = 3
+};
+
 // Feet
-Point footRED;
-Point footYELLOW;
+Point foot_left;
+Point foot_right;
 // Knees
-Point kneeRED;
-Point kneeYELLOW;
+Point knee_left;
+Point knee_right;
 // Hips
-Point hipRED;
-Point hipYELLOW;
+Point hip_left;
+Point hip_right;
 // Middle of the hips
 Point middle_hips;
 // Shoulders
-Point shoulderRED;
-Point shoulderYELLOW;
+Point shoulder_left;
+Point shoulder_right;
 // Head
 Point head;
+
+// Array of angles computed
+vector<float> kneesAnglesLEFT;
+vector<float> kneesAnglesRIGHT;
+vector<float> hipsAnglesLEFT;
+vector<float> hipsAnglesRIGHT;
+
 
 /*vector<Point> find_nearest_plot(vector<vector<Point>> contours)
 {

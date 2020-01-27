@@ -1,5 +1,3 @@
-#pragma once
-
 #include <iostream>
 #include <stdio.h>
 #include <experimental/optional>
@@ -13,13 +11,8 @@
 using namespace std;
 using namespace cv;
 
-#ifndef M_PI
-    #define M_PI 3.14159265358979323846
-#endif
+#define DIAGRAM_HEIGHT  180
+#define DIAGRAM_WIDTH   500
 
-
-float inner_angle_coor(float px1, float py1, float px2, float py2, float cx1, float cy1);
-float inner_angle(cv::Point p1, cv::Point p2, cv::Point c1);
-
-void print(vector<Point> input);
-void print_vect_angle(vector<float> input);
+void create_diagram(vector<float> kneesAnglesLEFT, vector<float> kneesAnglesRIGHT,
+                    vector<float> hipsAnglesLEFT, vector<float> hipsAnglesRIGHT);
